@@ -15,4 +15,3 @@ type FileInfo struct {
 	// 文件创建时间
 	CreateTimestamp int64 `json:"create_time"`
 }
-

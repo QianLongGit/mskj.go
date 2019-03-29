@@ -5,8 +5,8 @@ import (
 	"github.com/astaxie/beego/logs"
 	"github.com/toolkits/file"
 	"io/ioutil"
-	"mskj.file.transfer.common"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -131,7 +131,7 @@ func (sf SortFiles) Swap(i, j int) {
 func GetFilesByModifyTimeSort(dirs []string) (int, int64, int64, SortFiles) {
 	var fileInfos []string
 	for _, dir := range dirs {
-		vo, err := mskj_file_transfer_common.GetAllFiles(dir)
+		vo, err := GetAllFiles(dir)
 		if err != nil {
 			logs.Error("[文件信息按日期排序]", "获取目录下所有信息失败", "目录", dir, "异常", err)
 			continue
@@ -194,4 +194,30 @@ func GetAllTargetDirs(dir string, target string) ([]string, error) {
 		}
 	}
 	return dirs, nil
+}
+
+type FilesVo struct {
+	Fs []string `json:"fs"`
+}
+
+// 遍历获取指定目录下的所有文件
+func GetAllFiles(dir string) (*FilesVo, error) {
+	vo := &FilesVo{}
+	err := getAllFiles(dir, vo)
+	return vo, err
+}
+
+func getAllFiles(dir string, vo *FilesVo) error {
+	rd, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return err
+	}
+	for _, fi := range rd {
+		if fi.IsDir() {
+			getAllFiles(path.Join(dir, fi.Name()), vo)
+		} else {
+			vo.Fs = append(vo.Fs, path.Join(dir, fi.Name()))
+		}
+	}
+	return nil
 }
