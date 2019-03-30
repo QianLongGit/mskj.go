@@ -3,12 +3,40 @@ package tools
 import (
 	"bytes"
 	"errors"
+	"fmt"
+	"net"
 	"os"
 	"os/exec"
 	"os/user"
 	"runtime"
 	"strings"
 )
+
+// 获取本地IP
+func GetLocalIp() (string, error) {
+	ip := ""
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return "", err
+	}
+
+	for _, address := range addrs {
+		// 检查ip地址判断是否回环地址
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				ip = ipnet.IP.String()
+				if strings.HasPrefix(ip, "192.168") || strings.HasPrefix(ip, "10.") || strings.HasPrefix(ip, "172.") {
+					break
+				}
+			}
+
+		}
+	}
+	if ip == "" {
+		return "", fmt.Errorf("未找到本机的局域网 IPv4 地址")
+	}
+	return ip, nil
+}
 
 // 获取用户目录
 func Home() (string, error) {
