@@ -14,12 +14,15 @@ import (
 
 // 读取某个目录下的所有文件绝对路径, 包含子目录
 func GetFilesAbsByDir(dirname string) ([]string, error) {
+	var files []string
+	if filepath.Dir(dirname) == "." {
+		return files, fmt.Errorf("目录%s格式不正确", dirname)
+	}
 	// 获取正确合法不带末尾下划线的目录
 	dir := filepath.Dir(dirname) + string(os.PathSeparator)
 	allFiles, err := filepath.Glob(fmt.Sprintf("%s%s*", string(os.PathSeparator), dir))
-	var files []string
 	if err != nil {
-		return files, fmt.Errorf("遍历目录%s发生异常: %s", dir, err.Error())
+		return files, fmt.Errorf("遍历目录%s发生异常: %s", dir, err)
 	}
 	for _, file := range allFiles {
 		// 文件数量太大可能会导致系统崩溃, 这里设置超出一定值则不再读取
@@ -29,7 +32,7 @@ func GetFilesAbsByDir(dirname string) ([]string, error) {
 		}
 		f, err := os.Stat(file)
 		if err != nil {
-			logs.Error(fmt.Sprintf("读取目录.获取文件信息异常, 文件位置%s, 异常详情%s", file, err.Error()))
+			logs.Error(fmt.Sprintf("读取目录.获取文件信息异常, 文件位置%s, 异常详情%s", file, err))
 			continue
 		}
 		// 递归获取子目录
@@ -82,7 +85,7 @@ func GetSubDir(dirname string, ignore string, showHiddenDir bool) []map[string]i
 	var files []map[string]interface{}
 	rd, err := ioutil.ReadDir(dir)
 	if err != nil {
-		logs.Error(fmt.Sprintf("获取子目录.读取目录%s失败, 异常信息: %s", dir, err.Error()))
+		logs.Error(fmt.Sprintf("获取子目录.读取目录%s失败, 异常信息: %s", dir, err))
 		return files
 	}
 	for _, fi := range rd {

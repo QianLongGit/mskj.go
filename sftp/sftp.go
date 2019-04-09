@@ -195,7 +195,7 @@ func DownloadFile(sftpClient *sftp.Client, localFilePath string, remoteDir strin
 	localDir := file.Dir(localFilePath)
 	if !file.IsExist(localDir) {
 		if err := os.MkdirAll(localDir, os.FileMode(0755)); err != nil {
-			return fmt.Errorf("目录创建失败: %s", err.Error())
+			return fmt.Errorf("目录创建失败: %s", err)
 		}
 	}
 	var localFileName = file.Basename(localFilePath)

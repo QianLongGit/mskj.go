@@ -12,6 +12,26 @@ import (
 	"strings"
 )
 
+// 获取进程PID
+func GetPidByStartCmd(startCmd string) ([]int64, error) {
+	cmdExec := exec.Command("sh", "-c", fmt.Sprintf("ps aux | grep \"%s\" | grep -v grep|awk '{print $2}'", startCmd))
+	output, err := cmdExec.Output()
+	if err != nil {
+		return nil, err
+	}
+	res := strings.TrimSpace(string(output))
+
+	if res == "" {
+		return nil, fmt.Errorf("进程不存在")
+	}
+
+	var pids []int64
+	for _, s := range strings.Split(strings.TrimSpace(res), "\n") {
+		pids = append(pids, Str2Int64(strings.TrimSpace(s)))
+	}
+	return pids, nil
+}
+
 // 获取本地IP
 func GetLocalIp() (string, error) {
 	ip := ""

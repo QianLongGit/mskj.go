@@ -19,7 +19,7 @@ func VisitUrlWithChromeLess(url string, ele string, sleep time.Duration, timeout
 	cdp, err := newHeadless(ctx)
 	html := ""
 	if err != nil {
-		return html, errors.New(fmt.Sprintf("创建Chrome Headless实例失败 异常 %s", err.Error()))
+		return html, errors.New(fmt.Sprintf("创建Chrome Headless实例失败 异常 %s", err))
 	}
 	if ele == "" {
 		ele = "body"
@@ -40,7 +40,7 @@ func VisitUrlWithChromeLess(url string, ele string, sleep time.Duration, timeout
 	})
 	logs.Debug(fmt.Sprintf("[chromedp] 访问%s总耗时%s", url, TimestampFormat(time.Now().UnixNano()/1e6-now)))
 	if err != nil {
-		return html, errors.New(fmt.Sprintf("页面渲染失败 异常 %s", err.Error()))
+		return html, errors.New(fmt.Sprintf("页面渲染失败 异常 %s", err))
 	}
 	return html, nil
 }

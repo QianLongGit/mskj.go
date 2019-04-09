@@ -1,7 +1,9 @@
 package tools
 
 import (
+	"github.com/astaxie/beego/logs"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -51,4 +53,24 @@ func RemoveFileSeparator(s string) string {
 		return s
 	}
 	return RemoveFileSeparator(n)
+}
+
+// 字符串转float64类型，转换错误将会输出日志并返回0
+func Str2Float64(number string) float64 {
+	i, err := strconv.ParseFloat(number, 64)
+	if err != nil {
+		logs.Error(err)
+		return 0
+	}
+	return i
+}
+
+// 字符串转int64类型，转换错误将会输出日志并返回0
+func Str2Int64(number string) int64 {
+	i, err := strconv.ParseInt(number, 10, 64)
+	if err != nil {
+		logs.Error(err)
+		return 0
+	}
+	return i
 }
