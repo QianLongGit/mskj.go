@@ -26,8 +26,10 @@ func Orientation(filename string) (int64, error) {
 	x, err := exif.Decode(f)
 	if x != nil {
 		// 获取图片方向
-		t, _ := x.Get(exif.Orientation)
-		return t.Int64(0)
+		t, err := x.Get(exif.Orientation)
+		if err == nil && t != nil {
+			return t.Int64(0)
+		}
 	}
 
 	return 0, nil
