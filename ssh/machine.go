@@ -67,52 +67,64 @@ func (m *RemoteMachine) Reboot() {
 	logs.Info(m.Ip, "操作系统重启成功")
 }
 
-// 添加ubuntu的开机启动命令
+// 添加ubuntu的开机启动命令/etc/rc.local
 func (m *RemoteMachine) AddUbuntuPoweredUpCmd(cmds ...string) error {
-	r := RemoteSshCommand(*m, false, []string{"cat /etc/rc.local"})
-	if r.Err != nil {
-		logs.Error("获取 /etc/rc.local 内容失败", r.Err)
-		return r.Err
-	}
-	text := ""
+	var r Result
 	for _, s := range cmds {
-		if strings.Contains(r.Result, s) {
-			logs.Warn("开机启动项[", s, "]已存在，将跳过该启动项的添加")
-			continue
+		r = RemoteSshCommand(*m, false, []string{
+			fmt.Sprintf(`cat /etc/rc.local | grep '%s'`, s),
+		})
+		if r.Result != "" {
+			logs.Warn("配置项[", s, "]已存在，将跳过该配置项的添加")
+		} else {
+			r = RemoteSshCommand(*m, false, []string{
+				fmt.Sprintf(`echo '%s' > /tmp/AddUbuntuPoweredUpCmd.txt`, s),
+			})
+			r = RemoteSshCommand(*m, false, []string{
+				`expect -c "spawn sudo bash -c \"cat /tmp/AddUbuntuPoweredUpCmd.txt >> /etc/rc.local \" ; expect \"password for ` + m.Username + `:\" { send \"` + m.Password + `\r\" } ; set timeout -1 ; expect eof ;"`,
+			})
+			r = RemoteSshCommand(*m, false, []string{
+				`expect -c "spawn sudo bash -c \"rm - f /tmp/AddUbuntuPoweredUpCmd.txt \" ; expect \"password for ` + m.Username + `:\" { send \"` + m.Password + `\r\" } ; set timeout -1 ; expect eof ;"`,
+			})
+			if r.Err != nil {
+				logs.Warn("配置项[", s, "]添加失败", r.Err)
+			}
 		}
-		text += s + `\\\\n`
 	}
-	r = RemoteSshCommand(*m, false, []string{
-		`expect -c "spawn sudo bash -c \"sed -i '\\\$i ` + text + `' /etc/rc.local\" ; expect \"password for ` + m.Username + `:\" { send \"` + m.Password + `\r\" } ; set timeout -1 ; expect eof ;"`,
-	})
 	if r.Err != nil {
 		return r.Err
 	}
-	logs.Info(m.Ip, "开机启动项添加成功:\n", strings.Replace(text, `\\\\n`, "\n", -1))
+	logs.Info(fmt.Sprintf("为%s添加/etc/rc.local开机启动项成功, 配置如下: \n%s", m.Ip, strings.Join(cmds, "\n")))
 	return nil
 }
 
 // 添加环境变量到 /etc/profile 中
 func (m *RemoteMachine) AddProfilesToEtcProfile(cmds ...string) error {
-	r := RemoteSshCommand(*m, false, []string{"cat /etc/rc.local"})
-	if r.Err != nil {
-		logs.Error("获取 /etc/profile 内容失败", r.Err)
-		return r.Err
-	}
-	text := ""
+	var r Result
 	for _, s := range cmds {
-		if strings.Contains(r.Result, s) {
+		r = RemoteSshCommand(*m, false, []string{
+			fmt.Sprintf(`cat /etc/profile | grep '%s'`, s),
+		})
+		if r.Result != "" {
 			logs.Warn("配置项[", s, "]已存在，将跳过该配置项的添加")
-			continue
+		} else {
+			r = RemoteSshCommand(*m, false, []string{
+				fmt.Sprintf(`echo '%s' > /tmp/AddProfilesToEtcProfile.txt`, s),
+			})
+			r = RemoteSshCommand(*m, false, []string{
+				`expect -c "spawn sudo bash -c \"cat /tmp/AddProfilesToEtcProfile.txt >> /etc/profile \" ; expect \"password for ` + m.Username + `:\" { send \"` + m.Password + `\r\" } ; set timeout -1 ; expect eof ;"`,
+			})
+			r = RemoteSshCommand(*m, false, []string{
+				`expect -c "spawn sudo bash -c \"rm - f /tmp/AddProfilesToEtcProfile.txt \" ; expect \"password for ` + m.Username + `:\" { send \"` + m.Password + `\r\" } ; set timeout -1 ; expect eof ;"`,
+			})
+			if r.Err != nil {
+				logs.Warn("配置项[", s, "]添加失败", r.Err)
+			}
 		}
-		text += s + `\\\\n`
 	}
-	r = RemoteSshCommand(*m, false, []string{
-		`expect -c "spawn sudo bash -c \"sed -i '\\\$a ` + text + `' /etc/profile\" ; expect \"password for ` + m.Username + `:\" { send \"` + m.Password + `\r\" } ; set timeout -1 ; expect eof ;"`,
-	})
 	if r.Err != nil {
 		return r.Err
 	}
-	logs.Info(m.Ip, "/etc/profile 配置项添加成功:\n", strings.Replace(text, `\\\\n`, "\n", -1))
+	logs.Info(fmt.Sprintf("为%s添加/etc/profile配置项添加成功, 配置如下: \n%s", m.Ip, strings.Join(cmds, "\n")))
 	return nil
 }
