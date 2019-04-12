@@ -67,64 +67,32 @@ func (m *RemoteMachine) Reboot() {
 	logs.Info(m.Ip, "操作系统重启成功")
 }
 
-// 添加ubuntu的开机启动命令/etc/rc.local
-func (m *RemoteMachine) AddUbuntuPoweredUpCmd(cmds ...string) error {
+// 指定机器中的某个文件, 添加一行或多行字符
+func (m *RemoteMachine) AddLinesToFile(filename string, lines ...string) error {
 	var r Result
-	for _, s := range cmds {
+	for _, s := range lines {
 		r = RemoteSshCommand(*m, false, []string{
-			fmt.Sprintf(`cat /etc/rc.local | grep '%s'`, s),
+			fmt.Sprintf(`cat %s | grep '%s'`, filename, s),
 		})
 		if r.Result != "" {
-			logs.Warn("配置项[", s, "]已存在，将跳过该配置项的添加")
-		} else {
+			logs.Warn(fmt.Sprintf("%s上%s中已存在字符串[%s], 添加失败", m.Ip, filename, s))
 			r = RemoteSshCommand(*m, false, []string{
-				fmt.Sprintf(`echo '%s' > /tmp/AddUbuntuPoweredUpCmd.txt`, s),
+				fmt.Sprintf(`echo '%s' > /tmp/AddLinesToFile.txt`, s),
 			})
 			r = RemoteSshCommand(*m, false, []string{
-				`expect -c "spawn sudo bash -c \"cat /tmp/AddUbuntuPoweredUpCmd.txt >> /etc/rc.local \" ; expect \"password for ` + m.Username + `:\" { send \"` + m.Password + `\r\" } ; set timeout -1 ; expect eof ;"`,
+				`expect -c "spawn sudo bash -c \"cat /tmp/AddLinesToFile.txt >> /etc/rc.local \" ; expect \"password for ` + m.Username + `:\" { send \"` + m.Password + `\r\" } ; set timeout -1 ; expect eof ;"`,
 			})
 			r = RemoteSshCommand(*m, false, []string{
-				`expect -c "spawn sudo bash -c \"rm - f /tmp/AddUbuntuPoweredUpCmd.txt \" ; expect \"password for ` + m.Username + `:\" { send \"` + m.Password + `\r\" } ; set timeout -1 ; expect eof ;"`,
+				`expect -c "spawn sudo bash -c \"rm - f /tmp/AddLinesToFile.txt \" ; expect \"password for ` + m.Username + `:\" { send \"` + m.Password + `\r\" } ; set timeout -1 ; expect eof ;"`,
 			})
 			if r.Err != nil {
-				logs.Warn("配置项[", s, "]添加失败", r.Err)
+				logs.Warn(fmt.Sprintf("为%s添加指定字符串[%s]到%s失败 %s", m.Ip, s, filename, r.Err))
 			}
 		}
 	}
 	if r.Err != nil {
 		return r.Err
 	}
-	logs.Info(fmt.Sprintf("为%s添加/etc/rc.local开机启动项成功, 配置如下: \n%s", m.Ip, strings.Join(cmds, "\n")))
-	return nil
-}
-
-// 添加环境变量到 /etc/profile 中
-func (m *RemoteMachine) AddProfilesToEtcProfile(cmds ...string) error {
-	var r Result
-	for _, s := range cmds {
-		r = RemoteSshCommand(*m, false, []string{
-			fmt.Sprintf(`cat /etc/profile | grep '%s'`, s),
-		})
-		if r.Result != "" {
-			logs.Warn("配置项[", s, "]已存在，将跳过该配置项的添加")
-		} else {
-			r = RemoteSshCommand(*m, false, []string{
-				fmt.Sprintf(`echo '%s' > /tmp/AddProfilesToEtcProfile.txt`, s),
-			})
-			r = RemoteSshCommand(*m, false, []string{
-				`expect -c "spawn sudo bash -c \"cat /tmp/AddProfilesToEtcProfile.txt >> /etc/profile \" ; expect \"password for ` + m.Username + `:\" { send \"` + m.Password + `\r\" } ; set timeout -1 ; expect eof ;"`,
-			})
-			r = RemoteSshCommand(*m, false, []string{
-				`expect -c "spawn sudo bash -c \"rm - f /tmp/AddProfilesToEtcProfile.txt \" ; expect \"password for ` + m.Username + `:\" { send \"` + m.Password + `\r\" } ; set timeout -1 ; expect eof ;"`,
-			})
-			if r.Err != nil {
-				logs.Warn("配置项[", s, "]添加失败", r.Err)
-			}
-		}
-	}
-	if r.Err != nil {
-		return r.Err
-	}
-	logs.Info(fmt.Sprintf("为%s添加/etc/profile配置项添加成功, 配置如下: \n%s", m.Ip, strings.Join(cmds, "\n")))
+	logs.Info(fmt.Sprintf("为%s添加指定字符串\n%s\n到%s成功", m.Ip, strings.Join(lines, "\n"), filename))
 	return nil
 }
