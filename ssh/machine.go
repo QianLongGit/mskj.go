@@ -32,6 +32,17 @@ func (m *RemoteMachine) GetHomeDir() (string, error) {
 	return homeDir, nil
 }
 
+// 检查ssh工具是否安装
+func (m *RemoteMachine) IsInstalledSsh() (bool, error) {
+	r := RemoteSshCommand(*m, true, []string{
+		"pwd",
+	})
+	if r.Err != nil {
+		return false, r.Err
+	}
+	return true, nil
+}
+
 // 检查expect工具是否安装
 func (m *RemoteMachine) IsInstalled(programName string) (bool, error) {
 	r := RemoteSshCommand(*m, true, []string{
@@ -53,7 +64,7 @@ func (m *RemoteMachine) IsInstalled(programName string) (bool, error) {
 func (m *RemoteMachine) Reboot() {
 	logs.Info(m.Ip, "开始重启操作系统")
 	r := RemoteSshCommand(*m, false, []string{
-		`expect -c "spawn sudo reboot ; expect \"password for ` + m.Username + `:\" { send \"` + m.Password + `\r\" } ; set timeout -1 ; expect eof ;"`,
+		m.ExceptSudoWrapper("sudo reboot"),
 	})
 	for {
 		time.Sleep(time.Second * 5)
@@ -71,19 +82,23 @@ func (m *RemoteMachine) Reboot() {
 func (m *RemoteMachine) AddLinesToFile(filename string, lines ...string) error {
 	var r Result
 	for _, s := range lines {
-		r = RemoteSshCommand(*m, false, []string{
-			fmt.Sprintf(`cat %s | grep '%s'`, filename, s),
+		r = RemoteSshCommand(*m, true, []string{
+			`cat ` + filename,
 		})
-		if r.Result != "" {
+		if r.Err != nil {
+			continue
+		}
+		if strings.Contains(r.Result, s) {
 			logs.Warn(fmt.Sprintf("%s上%s中已存在字符串[%s], 添加失败", m.Ip, filename, s))
+		} else {
 			r = RemoteSshCommand(*m, false, []string{
 				fmt.Sprintf(`echo '%s' > /tmp/AddLinesToFile.txt`, s),
 			})
 			r = RemoteSshCommand(*m, false, []string{
-				`expect -c "spawn sudo bash -c \"cat /tmp/AddLinesToFile.txt >> /etc/rc.local \" ; expect \"password for ` + m.Username + `:\" { send \"` + m.Password + `\r\" } ; set timeout -1 ; expect eof ;"`,
+				m.ExceptSudoWrapper("cat /tmp/AddLinesToFile.txt >> " + filename),
 			})
 			r = RemoteSshCommand(*m, false, []string{
-				`expect -c "spawn sudo bash -c \"rm - f /tmp/AddLinesToFile.txt \" ; expect \"password for ` + m.Username + `:\" { send \"` + m.Password + `\r\" } ; set timeout -1 ; expect eof ;"`,
+				"rm -f /tmp/AddLinesToFile.txt",
 			})
 			if r.Err != nil {
 				logs.Warn(fmt.Sprintf("为%s添加指定字符串[%s]到%s失败 %s", m.Ip, s, filename, r.Err))
@@ -95,4 +110,21 @@ func (m *RemoteMachine) AddLinesToFile(filename string, lines ...string) error {
 	}
 	logs.Info(fmt.Sprintf("为%s添加指定字符串\n%s\n到%s成功", m.Ip, strings.Join(lines, "\n"), filename))
 	return nil
+}
+
+// 使用expect命令包装sudo命令
+func (m *RemoteMachine) ExceptSudoWrapper(cmd string) string {
+	return m.ExceptSudoWrapperByExcept(cmd, "")
+}
+
+// 使用expect命令包装sudo命令
+func (m *RemoteMachine) ExceptSudoWrapperByExcept(cmd string, expects ...string) string {
+	expect := strings.TrimSpace(strings.Join(expects, " ; "))
+	if expect == "" {
+		expect = ""
+	} else {
+		// 个数不为空, 末尾加分号
+		expect += " ; "
+	}
+	return `expect -c "spawn sudo sh -c \" ` + cmd + ` \" ; expect \"password for ` + m.Username + `:\" { send \"` + m.Password + `\r\" } ; ` + expect + ` set timeout -1 ; expect eof ;"`
 }
