@@ -12,43 +12,6 @@ import (
 	"strings"
 )
 
-// 读取某个目录下的所有文件绝对路径, 包含子目录
-func GetFilesAbsByDir(dirname string) ([]string, error) {
-	var files []string
-	if filepath.Dir(dirname) == "." {
-		return files, fmt.Errorf("目录%s格式不正确", dirname)
-	}
-	// 获取正确合法不带末尾下划线的目录
-	dir := filepath.Dir(dirname) + string(os.PathSeparator)
-	allFiles, err := filepath.Glob(fmt.Sprintf("%s%s*", string(os.PathSeparator), dir))
-	if err != nil {
-		return files, fmt.Errorf("遍历目录%s发生异常: %s", dir, err)
-	}
-	for _, file := range allFiles {
-		// 文件数量太大可能会导致系统崩溃, 这里设置超出一定值则不再读取
-		if len(files) > 10000 {
-			logs.Warn(fmt.Sprintf("读取目录.文件数总数过大, 只保留10000, 建议切换目录层级"))
-			break
-		}
-		f, err := os.Stat(file)
-		if err != nil {
-			logs.Error(fmt.Sprintf("读取目录.获取文件信息异常, 文件位置%s, 异常详情%s", file, err))
-			continue
-		}
-		// 递归获取子目录
-		if f.IsDir() {
-			childFiles, err := GetFilesAbsByDir(file)
-			if err != nil {
-				continue
-			}
-			files = append(files, childFiles...)
-			continue
-		}
-		files = append(files, file)
-	}
-	return files, nil
-}
-
 // 创建不存在的目录
 func CreatePathIfNotExists(p string) (bool, error) {
 	if !file.IsExist(p) {
