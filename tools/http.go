@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego/logs"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -74,4 +76,19 @@ func PostJsonStrTimeout(url string, data string, timeout time.Duration) (string,
 	}
 	respBody, _ := ioutil.ReadAll(resp.Body)
 	return string(respBody), resp.Status, nil
+}
+
+// 下载文件
+func DownloadFileFromUrl(url string, output string) error {
+	_, err := CreateFileIfNotExists(output)
+	if err != nil {
+		return err
+	}
+	out, err := os.OpenFile(output, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	defer out.Close()
+	resp, err := http.Get(url)
+	defer resp.Body.Close()
+	pix, err := ioutil.ReadAll(resp.Body)
+	_, err = io.Copy(out, bytes.NewReader(pix))
+	return err
 }
