@@ -168,20 +168,35 @@ type FilesVo struct {
 
 // 遍历获取指定目录下的所有文件
 func GetAllFiles(dir string) (*FilesVo, error) {
+	return GetAllFilesBySize(dir, -1, -1)
+}
+
+// 遍历获取指定目录下的所有文件
+func GetAllFilesBySize(dir string, minSize int64, maxSize int64) (*FilesVo, error) {
 	vo := &FilesVo{}
-	err := getAllFiles(dir, vo)
+	err := getAllFiles(dir, vo, minSize, maxSize)
 	return vo, err
 }
 
-func getAllFiles(dir string, vo *FilesVo) error {
+func getAllFiles(dir string, vo *FilesVo, minSize int64, maxSize int64) error {
 	rd, err := ioutil.ReadDir(dir)
 	if err != nil {
 		return err
 	}
 	for _, fi := range rd {
 		if fi.IsDir() {
-			getAllFiles(path.Join(dir, fi.Name()), vo)
+			getAllFiles(path.Join(dir, fi.Name()), vo, minSize, maxSize)
 		} else {
+			if minSize != -1 {
+				if fi.Size() < minSize {
+					continue
+				}
+			}
+			if maxSize != -1 {
+				if fi.Size() > maxSize {
+					continue
+				}
+			}
 			vo.Fs = append(vo.Fs, path.Join(dir, fi.Name()))
 		}
 	}
