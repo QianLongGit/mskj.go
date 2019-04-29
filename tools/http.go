@@ -87,7 +87,9 @@ func DownloadFileFromUrl(url string, output string) error {
 	out, err := os.OpenFile(output, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 	defer out.Close()
 	resp, err := http.Get(url)
-	defer resp.Body.Close()
+	if resp != nil {
+		defer resp.Body.Close()
+	}
 	pix, err := ioutil.ReadAll(resp.Body)
 	_, err = io.Copy(out, bytes.NewReader(pix))
 	return err
