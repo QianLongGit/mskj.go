@@ -2,9 +2,9 @@ package service
 
 import (
 	"fmt"
-	"gitee.com/piupuer/go/tools"
-	"gitee.com/piupuer/go/vo"
 	"github.com/astaxie/beego/orm"
+	"mskj.go/tools"
+	"mskj.go/vo"
 	"reflect"
 	"strings"
 )
