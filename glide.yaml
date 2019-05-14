@@ -1,0 +1,63 @@
+# 有些被墙的包无法访问, 需先设置mirror
+# glide mirror set https://golang.org/x/crypto https://github.com/golang/crypto --vcs git
+# glide mirror set https://golang.org/x/image https://github.com/golang/image --vcs git
+# glide mirror set https://golang.org/x/net https://github.com/golang/net --vcs git
+# glide mirror set https://golang.org/x/sys https://github.com/golang/sys --vcs git
+# glide mirror set https://golang.org/x/text https://github.com/golang/text --vcs git
+# glide mirror set https://google.golang.org/appengine https://github.com/golang/appengine --vcs git
+package: gitee.com/piupuer/go
+owners:
+  - name: piupuer
+    email: piupuer@gmail.com
+import:
+- package: github.com/astaxie/beego
+  version: ~1.11.1
+  subpackages:
+  - logs
+  - orm
+- package: github.com/disintegration/imaging
+  version: ~1.6.0
+- package: github.com/go-gomail/gomail
+  version: ~2.0.0
+- package: github.com/gocolly/colly
+  version: ~1.2.0
+- package: github.com/pkg/errors
+  version: ~0.8.1
+- package: github.com/pkg/sftp
+  version: ~1.10.0
+- package: github.com/rwcarlsen/goexif
+  subpackages:
+  - exif
+  - mknote
+- package: github.com/shirou/gopsutil
+  version: ~2.19.4
+  subpackages:
+  - cpu
+  - load
+- package: github.com/tealeg/xlsx
+  version: ~1.0.3
+- package: github.com/toolkits/file
+- package: golang.org/x/crypto
+  subpackages:
+  - ssh
+- package: golang.org/x/image
+  subpackages:
+  - bmp
+- package: golang.org/x/net
+  subpackages:
+  - html
+  - idna
+- package: golang.org/x/sys
+  subpackages:
+  - cpu
+  - unix
+  - windows
+- package: golang.org/x/text
+  subpackages:
+  - encoding
+  - secure
+  - transform
+  - unicode
+- package: google.golang.org/appengine
+  subpackages:
+  - urlfetch
