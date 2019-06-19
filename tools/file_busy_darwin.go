@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"mskj.bs.deploy/logs"
 	"mskj.go/s_const"
 	"mskj.go/vo"
 	"os"
@@ -17,7 +18,12 @@ func IsFileBusyByInterval(filename string, busyInterval int64) (bool, *vo.FileIn
 		busyInterval = s_const.BUSY_INTERVAL
 	}
 	f, err := os.Open(filename)
-	defer f.Close()
+	defer func() {
+		if f != nil {
+			err := f.Close()
+			logs.Error("文件关闭错误",err)
+		}
+	}()
 	if err != nil {
 		// 无权限访问文件
 		return true, nil
