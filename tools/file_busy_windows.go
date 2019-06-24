@@ -1,6 +1,9 @@
 package tools
 
 import (
+	"fmt"
+	"mskj.go/s_const"
+	"mskj.go/vo"
 	"os"
 	"syscall"
 	"time"
@@ -15,7 +18,14 @@ func IsFileBusyByInterval(filename string, busyInterval int64) (bool, *vo.FileIn
 		busyInterval = s_const.BUSY_INTERVAL
 	}
 	f, err := os.Open(filename)
-	defer f.Close()
+	defer func() {
+		if f != nil {
+			err := f.Close()
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}()
 	if err != nil {
 		// 无权限访问文件
 		return true, nil
