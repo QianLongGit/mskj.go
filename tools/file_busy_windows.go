@@ -1,8 +1,6 @@
 package tools
 
 import (
-	"gitee.com/piupuer/go/s_const"
-	"gitee.com/piupuer/go/vo"
 	"os"
 	"syscall"
 	"time"

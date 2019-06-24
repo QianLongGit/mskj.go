@@ -2,7 +2,7 @@ package ssh
 
 import (
 	"fmt"
-	sftp2 "gitee.com/piupuer/go/sftp"
+	sftp2 "mskj.go/sftp"
 	"github.com/astaxie/beego/logs"
 	"github.com/pkg/sftp"
 	"strings"
