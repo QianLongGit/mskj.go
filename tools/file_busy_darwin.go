@@ -1,7 +1,7 @@
 package tools
 
 import (
-	"mskj.bs.deploy/logs"
+	"github.com/astaxie/beego/logs"
 	"mskj.go/s_const"
 	"mskj.go/vo"
 	"os"
@@ -21,7 +21,7 @@ func IsFileBusyByInterval(filename string, busyInterval int64) (bool, *vo.FileIn
 	defer func() {
 		if f != nil {
 			err := f.Close()
-			deploy_logs.Error("文件关闭错误",err)
+			logs.Error("文件关闭错误",err)
 		}
 	}()
 	if err != nil {
