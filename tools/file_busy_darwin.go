@@ -21,7 +21,7 @@ func IsFileBusyByInterval(filename string, busyInterval int64) (bool, *vo.FileIn
 	defer func() {
 		if f != nil {
 			err := f.Close()
-			logs.Error("文件关闭错误",err)
+			deploy_logs.Error("文件关闭错误",err)
 		}
 	}()
 	if err != nil {
