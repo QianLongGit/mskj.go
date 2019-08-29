@@ -85,8 +85,14 @@ func DownloadFileFromUrl(url string, output string) error {
 		return err
 	}
 	out, err := os.OpenFile(output, os.O_TRUNC|os.O_WRONLY, os.ModeAppend)
+	if err != nil {
+		return err
+	}
 	defer out.Close()
 	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
 	if resp != nil {
 		defer resp.Body.Close()
 	}
