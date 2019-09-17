@@ -13,7 +13,9 @@ func GetNewOrm() orm.Ormer {
 // 从库 read
 func GetSlaveNewOrm() orm.Ormer {
 	o := orm.NewOrm()
-	// 这里暂时和主库使用同一个数据库
-	// o.Using("slave")
+	err := o.Using("slave")
+	if err != nil {
+		o = orm.NewOrm()
+	}
 	return o
 }
