@@ -1,9 +1,9 @@
 package service
 
 import (
-	"fmt"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
+	"mskj.go/common"
 	"reflect"
 	"strings"
 )
@@ -27,12 +27,11 @@ func LoadAllRelated(model interface{}) {
 // 获取指定列关联实体
 func LoadModelRelated(model interface{}, cols ...string) {
 	// 读数据使用从库
-	o := LockOrmer(true)
-	defer UnlockOrmer(true)
-	for _, col := range cols {
-		_, err := o.LoadRelated(model, col)
+	o := common.GetSlaveNewOrm()
+	for _,col := range cols {
+		_,err := o.LoadRelated(model,col)
 		if err != nil && err != orm.ErrNoRows {
-			logs.Error(fmt.Sprintf("Load Related %s Error %s", col, err))
+			logs.Error("读取关联属性",col,"错误",err)
 		}
 	}
 }

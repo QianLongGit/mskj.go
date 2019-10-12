@@ -85,8 +85,14 @@ func DownloadFileFromUrl(url string, output string) error {
 		return err
 	}
 	out, err := os.OpenFile(output, os.O_TRUNC|os.O_WRONLY, os.ModeAppend)
+	if err != nil {
+		return err
+	}
 	defer out.Close()
 	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
 	if resp != nil {
 		defer resp.Body.Close()
 	}
@@ -94,3 +100,17 @@ func DownloadFileFromUrl(url string, output string) error {
 	_, err = io.Copy(out, bytes.NewReader(pix))
 	return err
 }
+
+// 下载文件，返回下载文件的字节流
+func DownloadFileFromUrlToBytes(url string) ([]byte,error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil,err
+	}
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+	pix, err := ioutil.ReadAll(resp.Body)
+	return pix,err
+}
+
