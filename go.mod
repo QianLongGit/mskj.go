@@ -1,4 +1,4 @@
-module mskj.go
+module github.com/QianLongGit/mskj.go
 
 go 1.14
 
