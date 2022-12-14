@@ -2,7 +2,7 @@ package ssh
 
 import (
 	"fmt"
-	sftp2 "mskj.go/sftp"
+	sftp2 "github.com/QianLongGit/mskj.go/sftp"
 	"github.com/astaxie/beego/logs"
 	"github.com/pkg/sftp"
 	"strings"

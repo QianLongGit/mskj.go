@@ -2,9 +2,9 @@ package service
 
 import (
 	"fmt"
+	"github.com/QianLongGit/mskj.go/tools"
+	"github.com/QianLongGit/mskj.go/vo"
 	"github.com/astaxie/beego/orm"
-	"mskj.go/tools"
-	"mskj.go/vo"
 	"reflect"
 	"strings"
 )
@@ -46,18 +46,20 @@ type query struct {
 	orm.QuerySeter
 }
 
-//============================================================
-//=======================公共方法==============================
-//============================================================
+// ============================================================
+// =======================公共方法==============================
+// ============================================================
 // 获取查询器
 // pagination vo.Pagination	pagination(分页)
 // params 为可变参数, 依次为
 // 参数位置	类型				含义												必要性	示例
 // [0] 		interface{}		entity(需要查询的实体)								是
 // [1] 		interface{}		filter/cond										否		IdGt: 1(转为数据库语句WHERE id > 1)
-//			注意filter和cond只能选择一个, 另一个将无法生效
-// 			如果为filter表示使用Filter过滤条件, 支持的filter列表在该文件最上方
-//			如果为cond表示使用Condition自定义条件
+//
+//	注意filter和cond只能选择一个, 另一个将无法生效
+//	如果为filter表示使用Filter过滤条件, 支持的filter列表在该文件最上方
+//	如果为cond表示使用Condition自定义条件
+//
 // [2] 		interface{}		order(排序条件)									否		Id: "asc"(转为数据库语句ORDER BY id asc)
 func Query(pagination *vo.Pagination, params ...interface{}) orm.QuerySeter {
 	// 创建查询
@@ -108,9 +110,9 @@ func Query(pagination *vo.Pagination, params ...interface{}) orm.QuerySeter {
 //======================公共方法结束============================
 //============================================================
 
-//============================================================
-//=======================私有方法==============================
-//============================================================
+// ============================================================
+// =======================私有方法==============================
+// ============================================================
 // 添加过滤器
 func (q query) filter(filters interface{}) query {
 	filterType := reflect.TypeOf(filters)

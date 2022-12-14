@@ -1,8 +1,8 @@
 package tools
 
 import (
-	"mskj.go/s_const"
-	"mskj.go/vo"
+	"github.com/QianLongGit/mskj.go/s_const"
+	"github.com/QianLongGit/mskj.go/vo"
 	"os"
 	"syscall"
 	"time"

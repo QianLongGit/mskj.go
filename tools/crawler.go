@@ -1,8 +1,8 @@
 package tools
 
 import (
+	"github.com/QianLongGit/mskj.go/s_const"
 	"github.com/gocolly/colly"
-	"mskj.go/s_const"
 )
 
 // 爬虫实例

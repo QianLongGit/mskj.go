@@ -3,9 +3,9 @@ package common
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/QianLongGit/mskj.go/vo"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
-	"mskj.go/vo"
 )
 
 // 针对beego的controller中没有的一些方法进行扩展

@@ -1,9 +1,9 @@
 package tools
 
 import (
+	"github.com/QianLongGit/mskj.go/s_const"
+	"github.com/QianLongGit/mskj.go/vo"
 	"github.com/astaxie/beego/logs"
-	"mskj.go/s_const"
-	"mskj.go/vo"
 	"os"
 	"syscall"
 	"time"

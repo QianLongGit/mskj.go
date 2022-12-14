@@ -1,9 +1,9 @@
 package service
 
 import (
+	"github.com/QianLongGit/mskj.go/common"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
-	"mskj.go/common"
 	"sync"
 	"sync/atomic"
 )

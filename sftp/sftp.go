@@ -24,13 +24,13 @@ package sftp
 
 import (
 	"fmt"
+	"github.com/QianLongGit/mskj.go/tools"
 	"github.com/astaxie/beego/logs"
 	"github.com/pkg/sftp"
 	"github.com/toolkits/file"
 	"golang.org/x/crypto/ssh"
 	"io"
 	"io/ioutil"
-	"mskj.go/tools"
 	"os"
 	"path"
 	"time"

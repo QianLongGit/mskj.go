@@ -1,9 +1,9 @@
 package service
 
 import (
+	"github.com/QianLongGit/mskj.go/common"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
-	"mskj.go/common"
 	"reflect"
 	"strings"
 )
@@ -28,10 +28,10 @@ func LoadAllRelated(model interface{}) {
 func LoadModelRelated(model interface{}, cols ...string) {
 	// 读数据使用从库
 	o := common.GetSlaveNewOrm()
-	for _,col := range cols {
-		_,err := o.LoadRelated(model,col)
+	for _, col := range cols {
+		_, err := o.LoadRelated(model, col)
 		if err != nil && err != orm.ErrNoRows {
-			logs.Error("读取关联属性",col,"错误",err)
+			logs.Error("读取关联属性", col, "错误", err)
 		}
 	}
 }
